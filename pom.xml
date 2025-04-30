@@ -25,8 +25,11 @@
     <!-- Test-->
     <http4k.version>6.6.1.0</http4k.version>
     <junit.version>5.12.2</junit.version>
+    <selfie-runner-junit5.version>2.5.2</selfie-runner-junit5.version>
 
     <!-- Maven -->
+    <maven.version>3.9.9</maven.version>
+
     <ktfmt.version>0.54</ktfmt.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
@@ -35,6 +38,7 @@
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
 
+    <swagger-core.version>2.2.24</swagger-core.version>
   </properties>
 
   <dependencyManagement>
@@ -78,6 +82,21 @@
       <version>${kotlinx-serialization.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.http4k</groupId>
+      <artifactId>http4k-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.http4k</groupId>
+      <artifactId>http4k-api-openapi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-core</artifactId>
+      <version>${swagger-core.version}</version>
+    </dependency>
+
     <!--        Testing         -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -87,22 +106,19 @@
 
     <dependency>
       <groupId>org.http4k</groupId>
-      <artifactId>http4k-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.http4k</groupId>
-      <artifactId>http4k-api-openapi</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.http4k</groupId>
       <artifactId>http4k-server-jetty</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.http4k</groupId>
       <artifactId>http4k-format-kotlinx-serialization</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.diffplug.selfie</groupId>
+      <artifactId>selfie-runner-junit5</artifactId>
+      <version>${selfie-runner-junit5.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -319,10 +335,10 @@
                 <configuration>
                   <rules>
                     <requireMavenVersion>
-                      <version>${maven-enforcer-required-maven-version}</version>
+                      <version>${maven.version}</version>
                     </requireMavenVersion>
                     <banDuplicatePomDependencyVersions/>
-
+                    <dependencyConvergence/>
                   </rules>
                 </configuration>
               </execution>
