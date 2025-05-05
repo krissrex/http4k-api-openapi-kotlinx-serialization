@@ -1,5 +1,7 @@
 # Http4k OpenApi Kotlinx Serialization
 
+> [!WARNING]
+> Don't use this. It is a proof-of-concept. Unfinished.
 
 ## Contributing
 
