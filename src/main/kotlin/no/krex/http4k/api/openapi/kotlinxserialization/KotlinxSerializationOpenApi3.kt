@@ -37,18 +37,17 @@ import org.http4k.lens.ContentNegotiation
 import org.http4k.lens.Header
 import org.http4k.lens.Meta
 import org.http4k.lens.ParamMeta
-import org.http4k.lens.Path
 import org.http4k.lens.httpBodyRoot
 import org.http4k.security.Security
 
 class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
 
   override fun description(
-    contractRoot: PathSegments,
-    security: Security?,
-    routes: List<ContractRoute>,
-    tags: Set<Tag>,
-    webhooks: Map<String, List<WebCallback>>
+      contractRoot: PathSegments,
+      security: Security?,
+      routes: List<ContractRoute>,
+      tags: Set<Tag>,
+      webhooks: Map<String, List<WebCallback>>
   ): Response {
 
     val schema =
@@ -109,18 +108,19 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
       operationSpec.summary = meta.summary
       operationSpec.description = meta.description
 
-      route.spec.pathLenses.filter { it.toString().startsWith('{') }.forEach { pathLens ->
-        operationSpec.addParametersItem(
-            Parameter()
-                .name(pathLens.meta.name)
-                .`in`(pathLens.meta.location)
-                .description(pathLens.meta.description)
-                .required(pathLens.meta.required)
-                .style(Parameter.StyleEnum.SIMPLE)
-                .schema(StringSchema())
-                .example(pathLens.meta.metadata["example"])
-        )
-      }
+      route.spec.pathLenses
+          .filter { it.toString().startsWith('{') }
+          .forEach { pathLens ->
+            operationSpec.addParametersItem(
+                Parameter()
+                    .name(pathLens.meta.name)
+                    .`in`(pathLens.meta.location)
+                    .description(pathLens.meta.description)
+                    .required(pathLens.meta.required)
+                    .style(Parameter.StyleEnum.SIMPLE)
+                    .schema(StringSchema())
+                    .example(pathLens.meta.metadata["example"]))
+          }
       meta.requestParams.forEach { param ->
         val paramMeta: ParamMeta = param.meta.paramMeta
         val paramSpec = Parameter()
@@ -136,9 +136,7 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
           is ParamMeta.ArrayParam -> {
             paramSpec.schema =
                 io.swagger.v3.oas.models.media.ArraySchema().apply {
-                  items =
-                      io.swagger.v3.oas.models.media
-                          .StringSchema() // Default to string items
+                  items = io.swagger.v3.oas.models.media.StringSchema() // Default to string items
                 }
           }
 
@@ -193,7 +191,7 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
               { resp ->
                 resp.message.status.code.toString() to
                     (Header.CONTENT_TYPE(resp.message)?.withNoDirectives()?.value
-                      ?: "application/json")
+                        ?: "application/json")
               },
               { resp -> resp },
           )
@@ -220,8 +218,7 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
                             // Use the schema generator to create a schema from the example
                             // object
                             if (resp.example != null) {
-                              val example =
-                                  resp.example!! // Use !! to make the type non-nullable
+                              val example = resp.example!! // Use !! to make the type non-nullable
                               val serializer: KSerializer<Any> =
                                   json.serializersModule.serializer(example::class.java)
                               mediaType.schema = schemaGenerator.generateSchema(serializer)
@@ -243,7 +240,8 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
                           },
                       )
                     } else {
-                      // TODO Should group by content type. If several apply to the same content type, use oneOf.
+                      // TODO Should group by content type. If several apply to the same content
+                      // type, use oneOf.
 
                       // For polymorphic responses, reference the base class directly
                       addMediaType(
@@ -305,7 +303,7 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
                   meta.requests.forEach { req ->
                     val contentType =
                         Header.CONTENT_TYPE(req.message)?.withNoDirectives()?.value
-                          ?: "application/json"
+                            ?: "application/json"
 
                     content.addMediaType(
                         contentType,
@@ -362,8 +360,7 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
 
       when (method) {
         Method.GET,
-        Method.HEAD -> {
-        }
+        Method.HEAD -> {}
 
         else -> {
           // Only add request body if there are requests defined
@@ -400,10 +397,10 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
 
   val bodyLens: BiDiBodyLens<OpenAPI> =
       httpBodyRoot(
-          metas = listOf(Meta(true, "body", ParamMeta.ObjectParam, "body", "", emptyMap())),
-          acceptedContentType = ContentType.APPLICATION_JSON,
-          contentNegotiation = ContentNegotiation.None,
-      )
+              metas = listOf(Meta(true, "body", ParamMeta.ObjectParam, "body", "", emptyMap())),
+              acceptedContentType = ContentType.APPLICATION_JSON,
+              contentNegotiation = ContentNegotiation.None,
+          )
           .map({ it.payload.asString() }, { Body(it) })
           .map({ Json31.mapper().readValue(it, OpenAPI::class.java) }, { Json31.pretty(it) })
           .toLens()
