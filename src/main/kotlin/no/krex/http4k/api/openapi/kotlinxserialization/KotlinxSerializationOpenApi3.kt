@@ -243,6 +243,8 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
                           },
                       )
                     } else {
+                      // TODO Should group by content type. If several apply to the same content type, use oneOf.
+
                       // For polymorphic responses, reference the base class directly
                       addMediaType(
                           contentType,
@@ -268,6 +270,7 @@ class KotlinxSerializationOpenApi3(val json: Json) : ContractRenderer {
                                   // Also generate the schema for the base class to ensure it's
                                   // registered in components
                                   val baseClass = example::class.java.superclass
+                                  println(baseClass.name)
                                   val baseSerializer: KSerializer<Any> =
                                       json.serializersModule.serializer(baseClass)
                                   schemaGenerator.generateSchema(baseSerializer)
